@@ -1,0 +1,30 @@
+version: '3.2'
+services:
+  prometheus:
+    image: prom/prometheus:v2.31.1
+    restart: always
+    ports:
+      - 9090:9090
+    command: 
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    
+
+  blackbox:
+    image: prom/blackbox-exporter:v0.19.0
+    restart: always 
+    ports:
+      - 9115:9115
+    command:
+      - --config.file=/etc/blackbox/blackbox.yml
+    volumes:
+      - ./blackbox/blackbox.yml:/etc/blackbox/blackbox.yml:ro
+
+  cloudprober:
+    image: cloudprober/cloudprober
+    restart: always
+    ports:
+      - 9313:9313
+    volumes:
+      - ./cloudprober/cloudprober.cfg:/etc/cloudprober.cfg:ro # Cloud prober load by default /etc/cloudprober.cfg

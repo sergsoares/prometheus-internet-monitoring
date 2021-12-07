@@ -1,0 +1,41 @@
+scrape_configs:
+  - job_name: prometheus
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - prometheus:9090
+
+  - job_name: cloudprober
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - cloudprober:9313
+    metric_relabel_configs:
+    - source_labels: [__name__]
+      regex: '(.*)'
+      replacement: 'cloudprober_${1}'
+      target_label: __name__
+
+
+  - job_name: blackbox
+    metrics_path: /metrics
+    scrape_interval: 5s
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - prometheus:9090
+        - https://prometheus.io
+        - http://example.com:8080
+    metric_relabel_configs:
+    - source_labels: [__name__]
+      regex: '(.*)'
+      replacement: 'blackbox_${1}'
+      target_label: __name__
+    relabel_configs:
+    - source_labels: [__address__]
+      target_label: __param_target
+    - source_labels: [__param_target]
+      target_label: instance
+    - target_label: __address__
+      replacement: blackbox:9115
